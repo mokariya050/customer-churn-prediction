@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Customer Churn Predictor</title>
+  <meta name="description" content="Predict customer churn using a trained Machine Learning model. Enter customer details and get an instant churn prediction." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    /* ── Reset ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    /* ── Design tokens ── */
+    :root {
+      --bg:           #F4F7FB;   /* page background */
+      --card:         #FFFFFF;   /* card background */
+      --text:         #111827;   /* primary text    */
+      --text-muted:   #6B7280;   /* secondary text  */
+      --text-label:   #374151;   /* form labels     */
+      --primary:      #2563EB;   /* button / accent */
+      --primary-dark: #1D4ED8;   /* hover state     */
+      --success:      #16A34A;   /* no-churn green  */
+      --success-bg:   #F0FDF4;
+      --success-border:#BBF7D0;
+      --error:        #DC2626;   /* churn red       */
+      --error-bg:     #FEF2F2;
+      --error-border: #FECACA;
+      --border:       #D1D5DB;
+      --border-light: #E5E7EB;
+      --focus-ring:   rgba(37,99,235,0.18);
+    }
+
+    /* ── Base ── */
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    /* ── Layout ── */
+    .page-wrapper {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 40px 20px 64px;
+    }
+
+    /* ── Header ── */
+    .header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    .header h1 {
+      font-size: 1.85rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+    .header h1 span { color: var(--primary); }
+    .header p {
+      font-size: 0.92rem;
+      color: var(--text-muted);
+    }
+
+    /* ── Card ── */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border-light);
+      border-radius: 12px;
+      padding: 32px 36px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
+    }
+
+    /* ── Section heading ── */
+    .section-title {
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--primary);
+      margin-bottom: 18px;
+      padding-bottom: 10px;
+      border-bottom: 1.5px solid var(--border-light);
+    }
+
+    /* ── Form grid ── */
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+      gap: 16px 20px;
+      margin-bottom: 28px;
+    }
+
+    .form-group { display: flex; flex-direction: column; gap: 5px; }
+
+    .form-group label {
+      font-size: 0.80rem;
+      font-weight: 600;
+      color: var(--text-label);
+    }
+    .form-group label .req { color: var(--error); margin-left: 2px; }
+
+    /* ── Inputs & Selects ── */
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 9px 12px;
+      background: var(--card);
+      border: 1.5px solid var(--border);
+      border-radius: 7px;
+      color: var(--text);        /* #111827 — always dark and visible */
+      font-family: inherit;
+      font-size: 0.88rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      outline: none;
+      cursor: pointer;
+    }
+
+    /* Dropdown options — explicit dark color for all browsers */
+    .form-group select option {
+      color: #111827;
+      background: #ffffff;
+    }
+
+    .form-group input::placeholder { color: #9CA3AF; }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--focus-ring);
+    }
+
+    .form-group input.error,
+    .form-group select.error {
+      border-color: var(--error) !important;
+      box-shadow: 0 0 0 3px rgba(220,38,38,0.12) !important;
+    }
+
+    .field-hint {
+      font-size: 0.70rem;
+      color: #9CA3AF;
+    }
+
+    /* ── Divider ── */
+    .divider {
+      height: 1px;
+      background: var(--border-light);
+      margin: 28px 0;
+    }
+
+    /* ── Predict button ── */
+    .btn-predict {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 13px 24px;
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #ffffff;
+      background: var(--primary);
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+      box-shadow: 0 2px 8px rgba(37,99,235,0.28);
+    }
+    .btn-predict:hover:not(:disabled) {
+      background: var(--primary-dark);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 14px rgba(37,99,235,0.36);
+    }
+    .btn-predict:active:not(:disabled) { transform: translateY(0); }
+    .btn-predict:disabled { opacity: 0.65; cursor: not-allowed; }
+
+    /* Spinner */
+    .spinner {
+      width: 18px; height: 18px;
+      border: 2px solid rgba(255,255,255,0.4);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: none;
+    }
+    .btn-predict.loading .spinner  { display: block; }
+    .btn-predict.loading .btn-text { opacity: 0; position: absolute; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Result panel ── */
+    #result-panel { margin-top: 24px; }
+
+    .result-box {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 18px 20px;
+      border-radius: 10px;
+      border: 1.5px solid;
+      animation: slide-up 0.3s ease;
+    }
+    @keyframes slide-up {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .result-box.churn {
+      background: var(--error-bg);
+      border-color: var(--error-border);
+    }
+    .result-box.no-churn {
+      background: var(--success-bg);
+      border-color: var(--success-border);
+    }
+    .result-box.error-box {
+      background: #FFFBEB;
+      border-color: #FCD34D;
+    }
+
+    .result-icon { font-size: 1.8rem; line-height: 1; flex-shrink: 0; }
+    .result-content { flex: 1; }
+
+    .result-label {
+      font-size: 0.70rem;
+      font-weight: 700;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      margin-bottom: 3px;
+    }
+    .result-box.churn     .result-label { color: var(--error); }
+    .result-box.no-churn  .result-label { color: var(--success); }
+    .result-box.error-box .result-label { color: #D97706; }
+
+    .result-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+    .result-sub { font-size: 0.83rem; color: var(--text-muted); }
+
+    /* Probability bar */
+    .prob-bar-wrap { margin-top: 12px; }
+    .prob-bar-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.73rem;
+      color: var(--text-muted);
+      margin-bottom: 5px;
+    }
+    .prob-bar-track {
+      height: 7px;
+      background: var(--border-light);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+    .prob-bar-fill {
+      height: 100%;
+      border-radius: 99px;
+      transition: width 0.8s ease;
+    }
+    .result-box.churn    .prob-bar-fill { background: var(--error); }
+    .result-box.no-churn .prob-bar-fill { background: var(--success); }
+
+    /* ── Validation error ── */
+    .val-err {
+      font-size: 0.70rem;
+      color: var(--error);
+      display: none;
+    }
+    .val-err.show { display: block; }
+
+    /* ── Addon section dimming ── */
+    .addon-section.dimmed { opacity: 0.40; pointer-events: none; }
+
+    /* ── Footer ── */
+    .footer {
+      text-align: center;
+      margin-top: 32px;
+      font-size: 0.75rem;
+      color: #9CA3AF;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 600px) {
+      .card { padding: 24px 18px; }
+      .form-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 380px) {
+      .form-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<div class="page-wrapper">
+
+  <!-- Header -->
+  <header class="header">
+    <h1>Customer <span>Churn</span> Predictor</h1>
+    <p>Enter customer details and the ML model will instantly predict churn risk.</p>
+  </header>
+
+  <!-- Main Card -->
+  <div class="card">
+    <form id="churnForm" novalidate>
+
+      <!-- § 1 Demographics -->
+      <div class="section-title">👤 Customer Demographics</div>
+      <div class="form-grid">
+
+        <div class="form-group">
+          <label for="gender">Gender <span class="req">*</span></label>
+          <select id="gender" name="gender" required>
+            <option value="">— Select —</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+          </select>
+          <span class="val-err" id="err-gender">Please select a gender.</span>
+        </div>
+
+        <div class="form-group">
+          <label for="SeniorCitizen">Senior Citizen <span class="req">*</span></label>
+          <select id="SeniorCitizen" name="SeniorCitizen" required>
+            <option value="">— Select —</option>
+            <option value="0">No</option>
+            <option value="1">Yes</option>
+          </select>
+          <span class="val-err" id="err-SeniorCitizen">Please select.</span>
+        </div>
+
+        <div class="form-group">
+          <label for="Partner">Partner <span class="req">*</span></label>
+          <select id="Partner" name="Partner" required>
+            <option value="">— Select —</option>
+            <option value="Yes">Yes</option>
+            <option value="No">No</option>
+          </select>
+          <span class="val-err" id="err-Partner">Please select.</span>
+        </div>
+
+        <div class="form-group">
+          <label for="Dependents">Dependents <span class="req">*</span></label>
+          <select id="Dependents" name="Dependents" required>
+            <option value="">— Select —</option>
+            <option value="Yes">Yes</option>
+            <option value="No">No</option>
+          </select>
+          <span class="val-err" id="err-Dependents">Please select.</span>
+        </div>
+
+        <div class="form-group">
+          <label for="tenure">Tenure (months) <span class="req">*</span></label>
+          <input type="number" id="tenure" name="tenure" placeholder="e.g. 24" min="0" max="72" required />
+          <span class="field-hint">Range: 0 – 72</span>
+          <span class="val-err" id="err-tenure">Enter a value between 0 and 72.</span>
+        </div>
+
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- § 2 Services -->
+      <div class="section-title">📡 Services Subscribed</div>
+      <div class="form-grid">
+
+        <div class="form-group">
+          <label for="PhoneService">Phone Service <span class="req">*</span></label>
+          <select id="PhoneService" name="PhoneService" required>
+            <option value="">— Select —</option>
+            <option value="Yes">Yes</option>
+            <option value="No">No</option>
+          </select>
+          <span class="val-err" id="err-PhoneService">Please select.</span>
+        </div>
+
+        <div class="form-group" id="multipleLinesGroup">
+          <label for="MultipleLines">Multiple Lines</label>
+          <select id="MultipleLines" name="MultipleLines">
+            <option value="No">No</option>
+            <option value="Yes">Yes</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="InternetService">Internet Service <span class="req">*</span></label>
+          <select id="InternetService" name="InternetService" required>
+            <option value="">— Select —</option>
+            <option value="DSL">DSL</option>
+            <option value="Fiber optic">Fiber optic</option>
+            <option value="No">No Internet</option>
+          </select>
+          <span class="val-err" id="err-InternetService">Please select.</span>
+        </div>
+
+      </div>
+
+      <!-- Internet add-ons -->
+      <div class="addon-section" id="addonSection">
+        <div class="form-grid">
+
+          <div class="form-group">
+            <label for="OnlineSecurity">Online Security</label>
+            <select id="OnlineSecurity" name="OnlineSecurity">
+              <option value="No">No</option>
+              <option value="Yes">Yes</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="OnlineBackup">Online Backup</label>
+            <select id="OnlineBackup" name="OnlineBackup">
+              <option value="No">No</option>
+              <option value="Yes">Yes</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="DeviceProtection">Device Protection</label>
+            <select id="DeviceProtection" name="DeviceProtection">
+              <option value="No">No</option>
+              <option value="Yes">Yes</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="TechSupport">Tech Support</label>
+            <select id="TechSupport" name="TechSupport">
+              <option value="No">No</option>
+              <option value="Yes">Yes</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="StreamingTV">Streaming TV</label>
+            <select id="StreamingTV" name="StreamingTV">
+              <option value="No">No</option>
+              <option value="Yes">Yes</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="StreamingMovies">Streaming Movies</label>
+            <select id="StreamingMovies" name="StreamingMovies">
+              <option value="No">No</option>
+              <option value="Yes">Yes</option>
+            </select>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- § 3 Billing -->
+      <div class="section-title">💳 Billing &amp; Contract</div>
+      <div class="form-grid">
+
+        <div class="form-group">
+          <label for="Contract">Contract Type <span class="req">*</span></label>
+          <select id="Contract" name="Contract" required>
+            <option value="">— Select —</option>
+            <option value="Month-to-month">Month-to-month</option>
+            <option value="One year">One year</option>
+            <option value="Two year">Two year</option>
+          </select>
+          <span class="val-err" id="err-Contract">Please select a contract type.</span>
+        </div>
+
+        <div class="form-group">
+          <label for="PaperlessBilling">Paperless Billing</label>
+          <select id="PaperlessBilling" name="PaperlessBilling">
+            <option value="No">No</option>
+            <option value="Yes">Yes</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="PaymentMethod">Payment Method <span class="req">*</span></label>
+          <select id="PaymentMethod" name="PaymentMethod" required>
+            <option value="">— Select —</option>
+            <option value="Electronic check">Electronic check</option>
+            <option value="Mailed check">Mailed check</option>
+            <option value="Bank transfer (automatic)">Bank transfer (automatic)</option>
+            <option value="Credit card (automatic)">Credit card (automatic)</option>
+          </select>
+          <span class="val-err" id="err-PaymentMethod">Please select a payment method.</span>
+        </div>
+
+        <div class="form-group">
+          <label for="MonthlyCharges">Monthly Charges ($) <span class="req">*</span></label>
+          <input type="number" id="MonthlyCharges" name="MonthlyCharges"
+                 placeholder="e.g. 65.50" min="0" step="0.01" required />
+          <span class="val-err" id="err-MonthlyCharges">Enter a valid monthly charge.</span>
+        </div>
+
+        <div class="form-group">
+          <label for="TotalCharges">Total Charges ($) <span class="req">*</span></label>
+          <input type="number" id="TotalCharges" name="TotalCharges"
+                 placeholder="e.g. 1500.00" min="0" step="0.01" required />
+          <span class="val-err" id="err-TotalCharges">Enter a valid total charge.</span>
+        </div>
+
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Submit -->
+      <button type="submit" class="btn-predict" id="predictBtn">
+        <span class="spinner" id="spinner"></span>
+        <span class="btn-text">Predict Churn</span>
+      </button>
+
+    </form>
+
+    <!-- Result -->
+    <div id="result-panel" aria-live="polite"></div>
+  </div>
+
+  <footer class="footer">
+    Customer Churn Analysis &mdash; Final Year ML Project
+  </footer>
+
+</div>
+
+<script>
+  /* ── Dynamic field visibility ── */
+  const phoneSelect    = document.getElementById('PhoneService');
+  const mlGroup        = document.getElementById('multipleLinesGroup');
+  const internetSelect = document.getElementById('InternetService');
+  const addonSection   = document.getElementById('addonSection');
+
+  phoneSelect.addEventListener('change', () => {
+    const hasPhone = phoneSelect.value === 'Yes';
+    mlGroup.style.opacity = hasPhone ? '1' : '0.4';
+    mlGroup.style.pointerEvents = hasPhone ? 'auto' : 'none';
+  });
+
+  internetSelect.addEventListener('change', () => {
+    const hasInternet = internetSelect.value !== 'No' && internetSelect.value !== '';
+    addonSection.classList.toggle('dimmed', !hasInternet);
+  });
+
+  /* ── Validation ── */
+  const REQUIRED_FIELDS = [
+    'gender','SeniorCitizen','Partner','Dependents',
+    'tenure','PhoneService','InternetService',
+    'Contract','PaymentMethod','MonthlyCharges','TotalCharges'
+  ];
+
+  function clearErrors() {
+    document.querySelectorAll('.val-err.show').forEach(el => el.classList.remove('show'));
+    document.querySelectorAll('.error').forEach(el => el.classList.remove('error'));
+  }
+
+  function showError(fieldId, msg) {
+    const el  = document.getElementById(fieldId);
+    const err = document.getElementById('err-' + fieldId);
+    if (el)  el.classList.add('error');
+    if (err) { if (msg) err.textContent = msg; err.classList.add('show'); }
+  }
+
+  function validateForm() {
+    clearErrors();
+    let valid = true;
+    for (const id of REQUIRED_FIELDS) {
+      const el = document.getElementById(id);
+      if (!el) continue;
+      if (el.value.trim() === '') { showError(id); valid = false; }
+    }
+    const tenure = parseFloat(document.getElementById('tenure').value);
+    if (!isNaN(tenure) && (tenure < 0 || tenure > 72)) {
+      showError('tenure', 'Enter a value between 0 and 72.'); valid = false;
+    }
+    const mc = parseFloat(document.getElementById('MonthlyCharges').value);
+    if (!isNaN(mc) && mc < 0) {
+      showError('MonthlyCharges', 'Must be ≥ 0.'); valid = false;
+    }
+    const tc = parseFloat(document.getElementById('TotalCharges').value);
+    if (!isNaN(tc) && tc < 0) {
+      showError('TotalCharges', 'Must be ≥ 0.'); valid = false;
+    }
+    return valid;
+  }
+
+  /* ── Collect data ── */
+  function collectData() {
+    const ids = [
+      'gender','SeniorCitizen','Partner','Dependents',
+      'tenure','PhoneService','MultipleLines','InternetService',
+      'OnlineSecurity','OnlineBackup','DeviceProtection',
+      'TechSupport','StreamingTV','StreamingMovies',
+      'Contract','PaperlessBilling','PaymentMethod',
+      'MonthlyCharges','TotalCharges'
+    ];
+    const data = {};
+    for (const id of ids) {
+      const el = document.getElementById(id);
+      if (el) data[id] = el.value;
+    }
+    return data;
+  }
+
+  /* ── Render result ── */
+  function renderResult(result) {
+    const panel   = document.getElementById('result-panel');
+    const isChurn = result.prediction === 'Yes';
+    const prob    = result.probability !== null ? result.probability : null;
+    const probPct = prob !== null ? Math.round(prob * 100) : null;
+
+    panel.innerHTML = `
+      <div class="result-box ${isChurn ? 'churn' : 'no-churn'}">
+        <div class="result-icon">${isChurn ? '⚠️' : '✅'}</div>
+        <div class="result-content">
+          <div class="result-label">${isChurn ? 'High Churn Risk' : 'Low Churn Risk'}</div>
+          <div class="result-title">
+            ${isChurn ? 'Customer is likely to churn' : 'Customer is likely to stay'}
+          </div>
+          <div class="result-sub">
+            ${isChurn
+              ? 'This customer may leave. Consider a retention offer.'
+              : 'This customer appears satisfied and unlikely to leave.'}
+          </div>
+          ${probPct !== null ? `
+          <div class="prob-bar-wrap">
+            <div class="prob-bar-label">
+              <span>Churn Probability</span>
+              <strong>${probPct}%</strong>
+            </div>
+            <div class="prob-bar-track">
+              <div class="prob-bar-fill" id="probFill" style="width:0%"></div>
+            </div>
+          </div>` : ''}
+        </div>
+      </div>`;
+
+    if (probPct !== null) {
+      requestAnimationFrame(() => {
+        setTimeout(() => {
+          document.getElementById('probFill').style.width = probPct + '%';
+        }, 50);
+      });
+    }
+  }
+
+  function renderError(msg) {
+    document.getElementById('result-panel').innerHTML = `
+      <div class="result-box error-box">
+        <div class="result-icon">🚨</div>
+        <div class="result-content">
+          <div class="result-label">Error</div>
+          <div class="result-title">Prediction failed</div>
+          <div class="result-sub">${msg}</div>
+        </div>
+      </div>`;
+  }
+
+  /* ── Submit ── */
+  document.getElementById('churnForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!validateForm()) {
+      const firstErr = document.querySelector('.error');
+      if (firstErr) firstErr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+
+    const btn = document.getElementById('predictBtn');
+    btn.disabled = true;
+    btn.classList.add('loading');
+    document.getElementById('result-panel').innerHTML = '';
+
+    try {
+      const res  = await fetch('/predict', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify(collectData()),
+      });
+      const data = await res.json();
+      if (!res.ok || data.error) {
+        renderError(data.error || `Server error (${res.status})`);
+      } else {
+        renderResult(data);
+        document.getElementById('result-panel').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    } catch {
+      renderError('Cannot connect to server. Make sure the Flask app is running.');
+    } finally {
+      btn.disabled = false;
+      btn.classList.remove('loading');
+    }
+  });
+
+  /* ── Clear errors on change ── */
+  document.querySelectorAll('select, input').forEach(el => {
+    el.addEventListener('change', () => {
+      el.classList.remove('error');
+      const err = document.getElementById('err-' + el.id);
+      if (err) err.classList.remove('show');
+    });
+    el.addEventListener('input', () => {
+      el.classList.remove('error');
+      const err = document.getElementById('err-' + el.id);
+      if (err) err.classList.remove('show');
+    });
+  });
+</script>
+</body>
+</html>
