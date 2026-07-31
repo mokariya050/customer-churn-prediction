@@ -1,0 +1,81 @@
+/* ModelInfoSection.css */
+.model-section {
+  padding: 80px 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.model-inner { max-width: 1100px; margin: 0 auto; }
+
+/* Header */
+.ms-header { text-align: center; margin-bottom: 48px; }
+.ms-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 14px; border-radius: 99px;
+  background: rgba(99,102,241,0.08);
+  border: 1px solid rgba(99,102,241,0.18);
+  font-size: 0.72rem; font-weight: 600;
+  color: #A5B4FC; margin-bottom: 20px;
+}
+.ms-title { margin-bottom: 14px; }
+.ms-subtitle { max-width: 560px; margin: 0 auto; color: var(--text-3); font-size: 0.95rem; }
+
+/* Cards grid */
+.ms-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  margin-bottom: 48px;
+}
+
+.ms-card {
+  padding: 28px 24px;
+  transition: all 0.25s var(--ease);
+  cursor: default;
+}
+.ms-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+}
+.ms-card-icon { font-size: 1.6rem; margin-bottom: 14px; }
+.ms-card-label {
+  font-size: 0.70rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.07em;
+  color: var(--text-4); margin-bottom: 6px;
+}
+.ms-card-value {
+  font-size: 1.3rem; font-weight: 800;
+  color: var(--text-1); letter-spacing: -0.02em;
+  margin-bottom: 10px;
+}
+.ms-card-desc {
+  font-size: 0.82rem; color: var(--text-3);
+  line-height: 1.6;
+}
+
+/* Tech badges */
+.ms-tech { text-align: center; }
+.ms-tech-label {
+  font-size: 0.72rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.07em;
+  color: var(--text-4); margin-bottom: 16px;
+}
+.ms-tech-badges {
+  display: flex; flex-wrap: wrap;
+  justify-content: center; gap: 10px;
+}
+.ms-badge-pill {
+  padding: 7px 16px;
+  background: var(--glass);
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  font-size: 0.78rem; font-weight: 600;
+  color: var(--text-2);
+  transition: all 0.2s var(--ease);
+}
+.ms-badge-pill:hover {
+  background: var(--glass-hover);
+  border-color: var(--border-bright);
+  transform: translateY(-2px);
+  color: var(--text-1);
+}

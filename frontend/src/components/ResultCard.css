@@ -1,0 +1,107 @@
+/* ResultCard.css — analytics-style prediction result */
+.result-card {
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--glass);
+  backdrop-filter: blur(20px);
+}
+
+/* ── Banner ── */
+.rc-banner {
+  display: flex; align-items: flex-start; gap: 14px;
+  padding: 20px 24px;
+}
+.rc-banner.churn { background: rgba(244,63,94,0.06); border-bottom: 1px solid rgba(244,63,94,0.15); }
+.rc-banner.safe  { background: rgba(16,185,129,0.06); border-bottom: 1px solid rgba(16,185,129,0.15); }
+.rc-banner-icon  { font-size: 1.6rem; flex-shrink: 0; }
+.rc-banner-title { font-size: 1.05rem; font-weight: 700; color: var(--text-1); margin-bottom: 4px; }
+.rc-banner-sub   { font-size: 0.82rem; color: var(--text-3); line-height: 1.5; }
+
+/* ── Metrics ── */
+.rc-metrics {
+  display: flex; align-items: center; gap: 32px;
+  padding: 28px 24px;
+  flex-wrap: wrap;
+}
+
+.rc-metric-circle { flex-shrink: 0; }
+.rc-circle { position: relative; display: flex; align-items: center; justify-content: center; }
+.rc-circle-inner {
+  position: absolute; text-align: center;
+  display: flex; flex-direction: column; align-items: center;
+}
+.rc-circle-val { font-size: 1.5rem; font-weight: 800; }
+.rc-circle-val.churn { color: #F43F5E; }
+.rc-circle-val.safe  { color: #10B981; }
+.rc-circle-label { font-size: 0.65rem; color: var(--text-4); text-transform: uppercase; font-weight: 600; letter-spacing: 0.06em; }
+
+/* Stats grid */
+.rc-stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px 32px;
+  flex: 1;
+}
+.rc-stat-label {
+  font-size: 0.68rem; font-weight: 600;
+  color: var(--text-4); text-transform: uppercase;
+  letter-spacing: 0.06em; margin-bottom: 4px;
+}
+.rc-stat-value {
+  font-size: 1rem; font-weight: 700; color: var(--text-1);
+}
+.rc-stat-value.churn { color: #F43F5E; }
+.rc-stat-value.safe  { color: #10B981; }
+.rc-stat-value.risk-high   { color: #F43F5E; }
+.rc-stat-value.risk-medium { color: #F59E0B; }
+.rc-stat-value.risk-low    { color: #10B981; }
+
+/* ── Probability bar ── */
+.rc-bar-section {
+  padding: 0 24px 24px;
+}
+.rc-bar-labels {
+  display: flex; justify-content: space-between;
+  font-size: 0.65rem; color: var(--text-4); font-weight: 600;
+  margin-bottom: 8px;
+}
+.rc-bar-center { text-transform: uppercase; letter-spacing: 0.06em; }
+.rc-bar-track {
+  height: 10px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 99px;
+  overflow: hidden;
+  position: relative;
+}
+.rc-bar-fill {
+  height: 100%;
+  border-radius: 99px;
+}
+.rc-bar-fill.churn { background: linear-gradient(90deg, #F59E0B, #F43F5E); }
+.rc-bar-fill.safe  { background: linear-gradient(90deg, #34D399, #10B981); }
+.rc-bar-marker {
+  position: absolute; top: -3px;
+  width: 4px; height: 16px;
+  background: #fff; border-radius: 99px;
+  transform: translateX(-50%);
+  transition: left 1s cubic-bezier(0.22,1,0.36,1) 0.3s;
+  box-shadow: 0 0 6px rgba(255,255,255,0.3);
+}
+
+/* ── Explanation ── */
+.rc-explanation {
+  padding: 20px 24px;
+  border-top: 1px solid var(--border);
+  background: rgba(0,0,0,0.15);
+}
+.rc-exp-header {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 0.72rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.06em;
+  color: #A5B4FC; margin-bottom: 12px;
+}
+.rc-exp-body {
+  font-size: 0.85rem; color: var(--text-3);
+  line-height: 1.75; white-space: pre-wrap;
+}

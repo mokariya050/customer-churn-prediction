@@ -1,0 +1,15 @@
+.app-shell { position: relative; min-height: 100dvh; }
+.app-main  { position: relative; z-index: 1; }
+
+.chat-page {
+  height: 100dvh;
+  padding-top: 68px;   /* navbar height */
+  display: flex; flex-direction: column;
+}
+
+.manual-page {
+  min-height: 100dvh;
+  padding: 96px 20px 60px;
+  max-width: 900px;
+  margin: 0 auto;
+}

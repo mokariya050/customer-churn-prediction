@@ -1,0 +1,68 @@
+/* ManualForm.css — premium form page */
+.mf-page {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* Page header */
+.mf-page-header {
+  margin-bottom: 32px;
+}
+.mf-back {
+  margin-bottom: 20px;
+}
+.mf-heading {
+  font-size: clamp(1.6rem, 3.5vw, 2.2rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--text-1);
+  margin-bottom: 10px;
+}
+.mf-subheading {
+  font-size: 0.95rem;
+  color: var(--text-3);
+  max-width: 500px;
+  line-height: 1.7;
+}
+
+/* Form card */
+.mf-form {
+  background: var(--glass);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  padding: 36px 32px;
+  box-shadow:
+    0 0 0 1px rgba(99,102,241,0.06),
+    0 20px 60px rgba(0,0,0,0.4);
+}
+
+/* Section spacing */
+.mf-form .form-section {
+  margin-bottom: 32px;
+}
+.mf-form .form-section:last-of-type {
+  margin-bottom: 28px;
+}
+
+/* API Error */
+.mf-api-error {
+  margin-top: 14px;
+  padding: 12px 16px;
+  background: rgba(244,63,94,0.08);
+  border: 1px solid rgba(244,63,94,0.2);
+  border-radius: var(--radius-sm);
+  color: #F87171;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+/* Result */
+.mf-result {
+  margin-top: 28px;
+}
+
+@media (max-width: 640px) {
+  .mf-form { padding: 24px 18px; }
+}

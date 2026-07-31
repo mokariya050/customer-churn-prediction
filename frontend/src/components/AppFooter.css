@@ -1,0 +1,33 @@
+/* AppFooter.css */
+.app-footer {
+  padding: 40px 24px;
+  border-top: 1px solid var(--border);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.af-inner {
+  display: flex; align-items: center;
+  justify-content: space-between;
+  gap: 16px; flex-wrap: wrap;
+}
+.af-brand {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 0.85rem; font-weight: 700;
+  color: var(--text-2);
+}
+.af-logo {
+  width: 24px; height: 24px; border-radius: 6px;
+  background: linear-gradient(135deg, #6366F1, #8B5CF6);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff;
+}
+.af-copy {
+  font-size: 0.75rem; color: var(--text-4);
+  margin-top: 4px;
+}
+.af-right {
+  font-size: 0.73rem; color: var(--text-4);
+}
+@media (max-width: 500px) {
+  .af-inner { flex-direction: column; text-align: center; }
+}
